@@ -1,12 +1,16 @@
 import re
 import streamlit as st
 import streamlit_shadcn_ui as ui
+from streamlit_extras.add_vertical_space import add_vertical_space
+
+def example():
+    add_n_lines = st.slider("Add n vertical lines below this", 1, 20, 5)
+    add_vertical_space(add_n_lines)
+    st.write("Here is text after the nth line!")
 
 
-trigger_btn = ui.button(text="Trigger Button", key="trigger_btn")
 
-ui.alert_dialog(show=trigger_btn, title="Alert Dialog", description="This is an alert dialog", confirm_label="OK", cancel_label="Cancel", key="alert_dialog1")
-
+example    
 
 st.write("Hello world")
 st.image('./img/qrcode.jpg', caption='주소')
