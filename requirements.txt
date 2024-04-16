@@ -11,3 +11,4 @@ streamlit-toggle-switch==1.0.2
 streamlit-vertical-slider==2.5.5
 numpy==1.26.4
 python==3.12.2
+pip==23.3.1 
