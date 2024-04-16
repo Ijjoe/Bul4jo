@@ -106,9 +106,6 @@ BlockQuote 사용하기
   - Hello
     - hi
 
-- 안녕
-  - Hello
-    - hi
 ```
 
 &downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
@@ -118,10 +115,6 @@ BlockQuote 사용하기
     - hi
 
 * 안녕
-  - Hello
-    - hi
-
-- 안녕
   - Hello
     - hi
 
@@ -137,5 +130,6 @@ BlockQuote 사용하기
 ![poster](./img/techstack.jpg)
 ```
 
-##사용 기술 스택
+## \*사용 기술 스택
+
 ![poster](./img/techstack.jpg)
