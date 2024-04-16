@@ -36,19 +36,22 @@
 
 ---
 
+<p></p>
 ```c
 code 1
 
      code 2 // code block 할 내용
 
 code 3 // 정상적으로 출력
-```
+
+````
 
 code 1
 
      code 2 // code block 할 내용
 
 code 3 // 정상적으로 출력
+<p></p>
 
 ```c
 BlockQuote 사용하기
@@ -58,7 +61,7 @@ BlockQuote 사용하기
 > > 저는
 > >
 > > > bul 입니다.
-```
+````
 
 ---
 
@@ -70,13 +73,14 @@ BlockQuote 사용하기
 
 ---
 
+<p></p>
 ```c
 
 1. 안녕하세요
 2. 오늘하루도
 3. 행복하세요
 
-```
+````
 
 1. 안녕하세요
 2. 오늘하루도
@@ -84,6 +88,7 @@ BlockQuote 사용하기
 
 ---
 
+<p></p>
 ```c
 
 - 안녕
@@ -96,7 +101,7 @@ BlockQuote 사용하기
 
 - 안녕
   - Hello - hi
-```
+````
 
 - 안녕
   - Hello
