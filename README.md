@@ -6,7 +6,9 @@
 
 ---
 
-````# 가장큰 크기의 text로 변환
+```
+(copy 가능)
+# 가장큰 크기의 text로 변환
 
 ## 그다음 작은 크기위 text로 변환
 
@@ -19,8 +21,7 @@
 ###### 그다음 작은 크기의 text로 변환
 ```
 
-
-
+&downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
 
 # 가장큰 크기의 text로 변환
 
@@ -36,27 +37,29 @@
 
 ---
 
-
-
-
-
-```code 1
+```
+(copy 가능)
+code 1
 
      code 2 // code block 할 내용
 
 code 3 // 정상적으로 출력
 ```
 
+---
 
+&downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
 code 1
 
      code 2 // code block 할 내용
 
 code 3 // 정상적으로 출력
 
+---
 
-```BlockQuote 사용하기
-
+```
+(copy 가능)
+BlockQuote 사용하기
 > 안녕하세요
 >
 > > 저는
@@ -64,9 +67,9 @@ code 3 // 정상적으로 출력
 > > > bul 입니다.
 ```
 
+---
 
-
-
+&downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
 
 > 안녕하세요
 >
@@ -76,19 +79,26 @@ code 3 // 정상적으로 출력
 
 ---
 
-
-```1. 안녕하세요
+```
+(copy 가능)
+1. 안녕하세요
 2. 오늘하루도
 3. 행복하세요
 ```
 
-4. 안녕하세요
-5. 오늘하루도
-6. 행복하세요
+---
+
+&downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
+
+1. 안녕하세요
+2. 오늘하루도
+3. 행복하세요
 
 ---
 
-```- 안녕
+```
+(copy 가능)
+- 안녕
   - Hello
     - hi
 
@@ -101,8 +111,7 @@ code 3 // 정상적으로 출력
     - hi
 ```
 
-
-
+&downarrow;&downarrow;&downarrow;&downarrow;(아래는 적용한 모습)
 
 - 안녕
   - Hello
@@ -115,4 +124,7 @@ code 3 // 정상적으로 출력
 - 안녕
   - Hello
     - hi
-````
+
+```
+
+```
