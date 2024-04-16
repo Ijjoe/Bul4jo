@@ -1,6 +1,5 @@
 import re
 import streamlit as st
-import streamlit_shadcn_ui as ui
 from streamlit_extras.add_vertical_space import add_vertical_space
 
 def example():
