@@ -2,14 +2,14 @@ import re
 import streamlit as st
 from streamlit_extras.add_vertical_space import add_vertical_space
 
-def example():
+def example(ttx):
     add_n_lines = st.slider("Add n vertical lines below this", 1, 20, 5)
     add_vertical_space(add_n_lines)
-    st.write("Here is text after the nth line!")
+    st.write(ttx)
 
 
 
-example    
+example("Test bear")    
 
 st.write("Hello world")
 st.image('./img/qrcode.jpg', caption='주소')
