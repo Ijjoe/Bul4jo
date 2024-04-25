@@ -1,3 +1,22 @@
 streamlit
 streamlit_mic_recorder
 streamlit-mic-recorder
+librosa
+nemo_toolkit[asr]
+soundfile
+streamlit-audiorec
+
+니모모델 로컬vscode  install 이상
+3.10.12
+
+conda create -n nemo_env python=3.10.12
+conda activate nemo_env
+conda install -c conda-forge nemo_toolkit
+
+
+
+AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'? 
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: subprocess-exited-with-error
