@@ -10,4 +10,7 @@ streamlit-tailwind==0.1.0
 streamlit-toggle-switch==1.0.2
 streamlit-vertical-slider==2.5.5
 numpy==1.26.4
-st-annotated-text==4.0.1 
+st-annotated-text==4.0.1
+streamlit-extras
+nemo_toolkit[asr]
+ffmpeg-python
