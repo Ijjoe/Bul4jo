@@ -6,7 +6,17 @@ import copy
 from streamlit.components.v1 import html
 from streamlit_extras.buy_me_a_coffee import button
 from st_audiorec import st_audiorec
+from dotenv import load_dotenv
+from transformers import pipeline
 #import nemo.collections.asr as nemo_asr
+# .env 파일에서 환경 변수 로드
+load_dotenv()
+
+# 환경 변수에서 Hugging Face API 키 가져오기
+api_key = os.getenv("HUGGINGFACE_API_KEY")
+
+pipe=pipeline( model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0", api_key=api_key)
+pipe("This restaurant is awesome")
 
 st.set_page_config(
     page_title="Bul4jo",
