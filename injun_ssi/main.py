@@ -1,22 +1,31 @@
 import streamlit as st 
 import os
 import sys
-import datetime
+import IPython.display as ipd
+import numpy as np
+import random
 import copy
 from streamlit.components.v1 import html
 from streamlit_extras.buy_me_a_coffee import button
 from st_audiorec import st_audiorec
 from dotenv import load_dotenv
 from transformers import pipeline
+import soundfile as sf
+import torch
+from transformers import Wav2Vec2ForCTC,Wav2Vec2Processor
 #import nemo.collections.asr as nemo_asr
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
 # 환경 변수에서 Hugging Face API 키 가져오기
 api_key = os.getenv("HUGGINGFACE_API_KEY")
+#st.title(api_key)
+model_name="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0"
+#pipe=pipeline(model_name="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0", token=api_key)
+pro=Wav2Vec2Processor.from_pretrained(model_name)
+model = Wav2Vec2ForCTC.from_pretrained(model_name)
+st.title(model.eval())
 
-pipe=pipeline( model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0", api_key=api_key)
-pipe("This restaurant is awesome")
 
 st.set_page_config(
     page_title="Bul4jo",
