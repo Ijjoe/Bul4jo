@@ -25,7 +25,7 @@
       train/test 비율을 1:999로 설정하고 trainer.evaluate() 결과값을 확인하여 실제로 학습은 거의 진행하지 않은 상태에서 결과값을 보고자 함.
     - ![image](https://github.com/Ijjoe/Bul4jo/assets/161268753/14fa218d-7085-4360-8e93-63ea772249a4)
 
-    - ^[1]^ https://velog.io/@mino0121/NLP-OpenAI-Whisper-Fine-tuning-for-Korean-ASR-with-HuggingFace-Transformers
+    - <sup>[1]</sup> https://velog.io/@mino0121/NLP-OpenAI-Whisper-Fine-tuning-for-Korean-ASR-with-HuggingFace-Transformers
   - Ver 1.
     - Whisper-base 모델 및 pipeline 모듈을 활용하여 테스트셋에 대해 inference 성능 측정
 - ### Noise data 학습
