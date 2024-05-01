@@ -21,7 +21,7 @@
   - AI Hub Noise data 중 text파일은 json파일과 srt파일로 이루어져 있고, 이 중 srt파일에서 pysubs2 라이브러리를 활용해 텍스트 추출함.
 - ### Whisper base 모델 파인튜닝 진행 전 성능 측정
   - Ver 0.
-    - Base 모델을 활용한 적절한 inference 방법을 찾지 못한 상태라, Whisper fine-tuning ^ [1] ^ 을 참조하여 테스트셋으로 파인튜닝을 진행하되
+    - Base 모델을 활용한 적절한 inference 방법을 찾지 못한 상태라, Whisper fine-tuning<sup>[1]</sup>을 참조하여 테스트셋으로 파인튜닝을 진행하되
       train/test 비율을 1:999로 설정하고 trainer.evaluate() 결과값을 확인하여 실제로 학습은 거의 진행하지 않은 상태에서 결과값을 보고자 함.
     - ![image](https://github.com/Ijjoe/Bul4jo/assets/161268753/14fa218d-7085-4360-8e93-63ea772249a4)
 
