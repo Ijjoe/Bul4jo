@@ -15,7 +15,7 @@
   - 아나콘다 가상환경을 활용해 개별 프로젝트에 적합한 개발 환경 세팅
   - 많은 데이터를 효율적으로 학습하기 위해 GPU 연결 및 활용
   - Tensorflow 활용 및 VSCode Jupyter Notebook 활용
-- ### AI Hub 소음 데이터 다운로드 (Noise data)
+- ### AI Hub 소음 데이터 다운로드
 - ### AI Hub 소음 데이터 정제
   - AI Hub Noise data 중 wav파일은 NV파일(Noise O)과 VN파일(Noise X)이 혼재되어 있어 이 중 VN파일은 모두 제외함.
   - AI Hub Noise data 중 text파일은 json파일과 srt파일로 이루어져 있고, 이 중 srt파일에서 pysubs2 라이브러리를 활용해 텍스트 추출함.
@@ -23,7 +23,7 @@
   - Ver 0.
     - Base 모델을 활용한 적절한 inference 방법을 찾지 못한 상태라, Whisper fine-tuning^[1]^을 참조하여 테스트셋으로 파인튜닝을 진행하되
       train/test 비율을 1:999로 설정하고 trainer.evaluate() 결과값을 확인하여 실제로 학습은 거의 진행하지 않은 상태에서 결과값을 보고자 함.
-      ![image](https://github.com/Ijjoe/Bul4jo/assets/161268753/14fa218d-7085-4360-8e93-63ea772249a4)
+    - ![image](https://github.com/Ijjoe/Bul4jo/assets/161268753/14fa218d-7085-4360-8e93-63ea772249a4)
 
     - ^[1]^ https://velog.io/@mino0121/NLP-OpenAI-Whisper-Fine-tuning-for-Korean-ASR-with-HuggingFace-Transformers
   - Ver 1.
