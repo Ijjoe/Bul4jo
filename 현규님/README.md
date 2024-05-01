@@ -15,10 +15,13 @@
 ---
 - ### Local 개발 환경 설정
   - 학습 데이터 용량(약1.0TB)으로 인해 로컬에서 개발 진행
-  - 1. 아나콘다 가상환경을 활용해 개별 프로젝트에 적합한 개발 환경 세팅
-    2. 많은 데이터를 효율적으로 학습하기 위해 GPU 연결 및 활용
-    3. Tensorflow 활용 및 VSCode Jupyter Notebook 활용
+  - 아나콘다 가상환경을 활용해 개별 프로젝트에 적합한 개발 환경 세팅
+  - 많은 데이터를 효율적으로 학습하기 위해 GPU 연결 및 활용
+  - Tensorflow 활용 및 VSCode Jupyter Notebook 활용
 - ### AI Hub 소음 데이터 다운로드 (Noise data)
+- ### AI Hub 소음 데이터 정제
+  - AI Hub Noise data 중 wav파일은 NV파일(Noise O)과 VN파일(Noise X)이 혼재되어 있어 이 중 VN파일은 모두 제외함.
+  - AI Hub Noise data 중 text파일은 json파일과 srt파일로 이루어져 있고, 이 중 srt파일에서 pysubs2 라이브러리를 활용해 텍스트 추출함.
 - ### Whisper base 모델 파인튜닝 진행 전 성능 측정
   - Ver 0.
     - Base 모델을 활용한 적절한 inference 방법을 찾지 못한 상태라, Whisper fine-tuning^[1]^을 참조하여 테스트셋으로 파인튜닝을 진행하되
@@ -28,9 +31,6 @@
     - ^[1]^ https://velog.io/@mino0121/NLP-OpenAI-Whisper-Fine-tuning-for-Korean-ASR-with-HuggingFace-Transformers
   - Ver 1.
     - Whisper-base 모델 및 pipeline 모듈을 활용하여 테스트셋에 대해 inference 성능 측정
-- ### AI Hub 소음 데이터 정제
-  - AI Hub Noise data 중 wav파일은 NV파일(Noise O)과 VN파일(Noise X)이 혼재되어 있어 이 중 VN파일은 모두 제외함.
-  - AI Hub Noise data 중 text파일은 json파일과 srt파일로 이루어져 있고, 이 중 srt파일에서 pysubs2 라이브러리를 활용해 텍스트 추출함.
 - ### Noise data 학습
   - 학습 데이터(약 20,000건)가 충분하다고 판단되어 train/valid 비율은 9:1로 설정함.
   - ![image](https://github.com/Ijjoe/Bul4jo/assets/161268753/1c7a70a5-78f1-4e3d-ad94-0672f1b3490a)
@@ -69,6 +69,12 @@
 
 
 
+# 테스트!
+---
+
+#### 프로젝트를 소통을 위한 마크다운 사용법 (복사해서 쓰세요)
+
+---
 
 ```
 
