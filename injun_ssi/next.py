@@ -7,11 +7,13 @@ import os,sys
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.io import wavfile
+
 
 ####JAMO####
 
 import itertools
+
+start_time = time.monotonic()
 
 INITIAL = 0x001
 MEDIAL = 0x010
@@ -215,7 +217,6 @@ def join_jamos(s, ignore_err=True):
     return new_string
 
 
-
 ####PIPE LINE####
 
 pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
@@ -230,92 +231,73 @@ def transcribe(audio_data):
 
 ####STREAMLIT INTERFACE####
 working_dir = os.path.dirname(os.path.abspath(__file__))
-st.set_page_config(
-		page_title="Bul4jo",
-		page_icon=":white_check_mark:",
-		layout="wide"    
-		)
+        
+st.title("불사조 음성 인식 STT 프로젝트 모델 비교")
+st.subheader("OPEN API Whisper | Nivida Nemo | Wav2Vec")
 
-### buy me a coffee ###
-def coffee():
-	buy_me_a_coffee.button(username="bul4jo", floating=True, width=220 ,text='커피 한 잔' )
-	
-###########################	
+#### css ####
 
-with st.spinner('사이트 호출 중...'):         
-    st.title("불사조 프로젝트 모델 비교")
-    st.subheader("Nivida Nemo | OPEN API Whisper | Wav2Vec")
+st.markdown(
+    """
+    <style>
+    .main.st-emotion-cache-bm2z3a.ea3mdgi8 {
+	  background-image: url("https://github.com/Ijjoe/Bul4jo/blob/main/injun_ssi/busa_new_fin_tras.png?raw=true");
+      background-position: center;
+      background-repeat: no-repeat;
+        }
+</style>
+    """,
+    unsafe_allow_html=True)
+   
 	
-    ### tab menu #####
+### tab menu #####
+  
+tab1,tab2,tab3,tab4 = st.tabs(['Whisper','Nemo','Wav2Vec','Q & A'])
         
-        
-        
-    tab1,tab2,tab3 = st.tabs(['Wav2Vec','Tab B','Tab C'])
-        
-        
-    st.markdown(
-            """
-            <style>
-        
-        .iframeContainer {
-        position: relative;
-        width: 100%;
-        }
-        .iframeContainer iframe {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        }
-        
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-        
-    st.image(f'{working_dir}\cbmc_qr.png', caption='거! 커피한잔은 괜찮잖아~~',width=180)
-    coffee()
-        
-    with tab1 :
+
+with tab1 :
         # tab1 에 담을 내용
-        uploaded_file = st.file_uploader("Upload Audio File", type=['wav'])
-        if uploaded_file is not None:
-            audio_bytes = uploaded_file.read()
-            composed_text = transcribe(audio_bytes)
-            st.audio(uploaded_file, format='audio/wav')
-            st.write("Recognized Text:")
-            st.write(composed_text)
-        
-            st.subheader("Or use your microphone:")
-        
-        
-        wav_audio_data = st_audiorec()
-        if wav_audio_data is not None:
-            with st.spinner('음성 텍스트 변환 중...'):            
-                composed_text = transcribe(wav_audio_data)
-                st.audio(wav_audio_data, format='audio/wav')
-                st.write("변환된 문자:")
-                st.write(composed_text)                            
-                st.success('Done!')
-
-        
-        
-                
-    with tab2 :
+    st.write("현규님 소스")
+           # tab1 에 담을 내용
+     
+                      
+with tab2 :
         # tab2  에 담을 내용
-        st.write("NeMO")
-        sys.path.append(working_dir)
-        st.title(working_dir)
+    st.write("인준님 소스")
+    sys.path.append(working_dir)
+    st.title(working_dir)
         
         
-    with tab3 :
-        st.write("현규님")
-
+with tab3 :      
+    uploaded_file = st.file_uploader("Upload Audio File", type=['wav'])
+    if uploaded_file is not None:
+        audio_bytes = uploaded_file.read()
+        composed_text = transcribe(audio_bytes)
+        st.audio(uploaded_file, format='audio/wav')
+        st.write("Recognized Text:")
+        st.write(composed_text)
+        
+        st.subheader("Or use your microphone:")
+        
+        
+    wav_audio_data = st_audiorec()
+    with st.spinner('음성 텍스트 변환 중...'):   
+        if wav_audio_data is not None:
+            composed_text = transcribe(wav_audio_data)
+            st.audio(wav_audio_data, format='audio/wav')
+            st.write("변환된 문자:")
+            st.write(composed_text)                            
+            st.success('Done!')
+with tab4 :  
+    ### buy me a coffee ###
+    buy_me_a_coffee.button(username="bul4jo", floating=True, width=220 ,text='커피 한 잔' )  
+    st.image(f'{working_dir}\cbmc_qr.png', caption='거! 커피한잔은 괜찮잖아~~',width=180)
 
 #####
 
 # conda activate final
 # streamlit run next.py
+# tasklist | findstr streamlit
 
-
+end_time = time.monotonic()
+print('실행 로딩 경과 시간 : {}'.format(end_time-start_time))
