@@ -3,10 +3,11 @@ from transformers import pipeline
 import itertools
 from streamlit_extras import buy_me_a_coffee
 from st_audiorec import st_audiorec
-import os, sys
+import os,sys
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 ####JAMO####
 
@@ -46,20 +47,26 @@ CHARSET = set(itertools.chain(*CHAR_SETS.values()))
 CHAR_INDICES = {k: {c: i for i, c in enumerate(v)}
                 for k, v in CHAR_LISTS.items()}
 
+
 def is_hangul_syllable(c):
     return 0xac00 <= ord(c) <= 0xd7a3  # Hangul Syllables
+
 
 def is_hangul_jamo(c):
     return 0x1100 <= ord(c) <= 0x11ff  # Hangul Jamo
 
+
 def is_hangul_compat_jamo(c):
     return 0x3130 <= ord(c) <= 0x318f  # Hangul Compatibility Jamo
+
 
 def is_hangul_jamo_exta(c):
     return 0xa960 <= ord(c) <= 0xa97f  # Hangul Jamo Extended-A
 
+
 def is_hangul_jamo_extb(c):
     return 0xd7b0 <= ord(c) <= 0xd7ff  # Hangul Jamo Extended-B
+
 
 def is_hangul(c):
     return (is_hangul_syllable(c) or
@@ -68,8 +75,10 @@ def is_hangul(c):
             is_hangul_jamo_exta(c) or
             is_hangul_jamo_extb(c))
 
+
 def is_supported_hangul(c):
     return is_hangul_syllable(c) or is_hangul_compat_jamo(c)
+
 
 def check_hangul(c, jamo_only=False):
     if not ((jamo_only or is_hangul_compat_jamo(c)) or is_supported_hangul(c)):
@@ -78,16 +87,22 @@ def check_hangul(c, jamo_only=False):
                          f"'Hangul Compatibility Jamos' (0x3130 ~ 0x318f) are "
                          f"supported at the moment.")
 
+
 def get_jamo_type(c):
     check_hangul(c)
     assert is_hangul_compat_jamo(c), f"not a jamo: {ord(c):x}"
     return sum(t for t, s in CHAR_SETS.items() if c in s)
+
 
 def split_syllable_char(c):
     check_hangul(c)
     if len(c) != 1:
         raise ValueError("한개만")
 
+    init, med, final = None, None, None
+    if is_hangul_syllable(c):
+        offset = ord(c) - 0xac00
+        x = (offset - offset % 28) // 28
     init, med, final = None, None, None
     if is_hangul_syllable(c):
         offset = ord(c) - 0xac00
@@ -116,7 +131,9 @@ def split_syllable_char(c):
                  for pos, idx in
                  zip([INITIAL, MEDIAL, FINAL], [init, med, final]))
 
+
 def split_syllables(s, ignore_err=True, pad=None):
+
     def try_split(c):
         try:
             return split_syllable_char(c)
@@ -132,6 +149,8 @@ def split_syllables(s, ignore_err=True, pad=None):
     else:
         tuples = map(lambda x: filter(None, x), s)
     return "".join(itertools.chain(*tuples))
+
+
 
 def join_jamos_char(init, med, final=None):
     chars = (init, med, final)
@@ -197,12 +216,13 @@ def join_jamos(s, ignore_err=True):
         new_string += flush()
     return new_string
 
+
 ####PIPE LINE####
+from transformers import pipeline
 
 pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
 
 ####TEXT COMBINE####
-
 def transcribe(audio_data):
     result = pipe(audio_data)
     text = result["text"]
@@ -210,36 +230,152 @@ def transcribe(audio_data):
     return composed_text
 
 ####STREAMLIT INTERFACE####
+import os
+import streamlit as st
 
-st.title(" 음성 인식 모델 테스트 ")
-st.subheader("실시간 인식 모델 - wav2vec finetuned Kor LJ")
+working_dir = os.path.dirname(os.path.abspath(__file__))
 
-st.subheader("실시간 마이크 입력")
-from st_audiorec import st_audiorec
-wav_audio_data = st_audiorec()
-if wav_audio_data is not None:
-    composed_text = transcribe(wav_audio_data)
-    st.audio(wav_audio_data, format='audio/wav')
-    st.write("출력:")
-    st.write(composed_text)
+st.title("불사조 음성 인식 STT 프로젝트 모델 비교")
+st.subheader("OPEN API Whisper | Nvidia Nemo | Wav2Vec")
 
-uploaded_file = st.file_uploader("오디오 파일 업로드", type=['wav'])
-if uploaded_file is not None:
-    audio_bytes = uploaded_file.read()
-    composed_text = transcribe(audio_bytes)
-    st.audio(uploaded_file, format='audio/wav')
-    st.write("출력:")
-    st.write(composed_text)
-with tab4 :  
-    ### buy me a coffee ###
-    buy_me_a_coffee.button(username="bul4jo", floating=True, width=220 ,text='커피 한 잔' )  
-    st.image(f'{working_dir}\cbmc_qr.png', caption='거! 커피한잔은 괜찮잖아~~',width=180)
+#### CSS ####
+st.markdown(
+    """
+    <style>
+    .main.st-emotion-cache-bm2z3a.ea3mdgi8 {
+        background-image: url("https://github.com/Ijjoe/Bul4jo/blob/main/injun_ssi/busa_new_fin_tras.png?raw=true");
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True)
 
-#####
+#### TAB MENU #####
+tab1, tab2, tab3, tab4 = st.tabs(['Whisper', 'Nemo', 'Wav2Vec', 'Q & A'])
 
+with tab1:
+    model_size = "medium"
+    from whisper import WhisperModel
+    model = WhisperModel(model_size, device="cuda", compute_type="float16")
+
+    def transcribe_whisper(audio_data):
+        from io import BytesIO
+        import soundfile as sf
+        audio_buffer = BytesIO(audio_data)
+        temp_filename = "temp_audio.wav"
+        data, samplerate = sf.read(audio_buffer)
+        sf.write(temp_filename, data, samplerate)
+
+        segments, info = model.transcribe(temp_filename, beam_size=5)
+        transcription = ""
+
+        for segment in segments:
+            transcription += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+
+        language = info.language if info.language_probability > 0.5 else "Uncertain"
+        return transcription, language
+
+    st.title("음성 인식 모델 테스트")
+    st.write("모델 - Faster-whisper-medium -")
+    st.subheader("실시간 마이크 입력")
+    from st_audiorec import st_audiorec
+    wav_audio_data = st_audiorec()
+    if wav_audio_data is not None:
+        recognized_text, language = transcribe_whisper(wav_audio_data)
+        st.audio(wav_audio_data, format='audio/wav')
+        st.write("감지된 언어:", language)
+        st.write("출력:")
+        st.write(recognized_text)
+
+    st.subheader("오디오 파일 업로드:")
+    uploaded_file = st.file_uploader("Choose an audio file", type=['wav', 'mp3', 'ogg'])
+    if uploaded_file is not None:
+        audio_bytes = uploaded_file.read()
+        recognized_text, language = transcribe_whisper(audio_bytes)
+        st.audio(uploaded_file, format='audio/wav')
+        st.write("감지된 언어:", language)
+        st.write("출력:")
+        st.write(recognized_text)
+
+with tab2:
+    import nemo.collections.asr as nemo_asr
+    asr_model = nemo_asr.models.ASRModel.from_pretrained("eesungkim/stt_kr_conformer_transducer_large")
+
+    def transcribe_nemo(audio_data):
+        from io import BytesIO
+        import soundfile as sf
+        audio_buffer = BytesIO(audio_data)
+        data, samplerate = sf.read(audio_buffer)
+
+        if len(data.shape) > 1 and data.shape[1] == 2:
+            data = data.mean(axis=1)
+
+        temp_filename = "temp.wav"
+        sf.write(temp_filename, data, samplerate)
+        text = asr_model.transcribe([temp_filename])[0]
+        return text
+
+    st.title("음성 인식 모델 테스트")
+    st.write("모델 - Nvidia NeMo ASR")
+    st.subheader("실시간 마이크 입력")
+    wav_audio_data = st_audiorec()
+    if wav_audio_data is not None:
+        recognized_text = transcribe_nemo(wav_audio_data)
+        st.audio(wav_audio_data, format='audio/wav')
+        st.write("출력:")
+        st.write(recognized_text)
+
+    st.subheader("오디오 파일 업로드")
+    uploaded_file = st.file_uploader("오디오 파일 선택", type=['wav', 'mp3', 'ogg'])
+    if uploaded_file is not None:
+        audio_bytes = uploaded_file.read()
+        recognized_text = transcribe_nemo(audio_bytes)
+        st.audio(uploaded_file, format='audio/wav')
+        st.write("출력:")
+        st.write(recognized_text)
+
+with tab3:
+    ####PIPE LINE####
+    from transformers import pipeline
+
+    pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
+
+    ####TEXT COMBINE####
+    def transcribe(audio_data):
+        result = pipe(audio_data)
+        text = result["text"]
+        composed_text = join_jamos(text)
+        return composed_text
+
+    ####STREAMLIT INTERFACE####
+    st.title("음성 인식 모델 테스트")
+    st.subheader("실시간 인식 모델 - wav2vec finetuned Kor LJ")
+
+    st.subheader("실시간 마이크 입력")
+    from st_audiorec import st_audiorec
+    wav_audio_data = st_audiorec()
+    if wav_audio_data is not None:
+        composed_text = transcribe(wav_audio_data)
+        st.audio(wav_audio_data, format='audio/wav')
+        st.write("출력:")
+        st.write(composed_text)
+
+    st.subheader("오디오 파일 업로드")
+    uploaded_file = st.file_uploader("오디오 파일 업로드", type=['wav'])
+    if uploaded_file is not None:
+        audio_bytes = uploaded_file.read()
+        composed_text = transcribe(audio_bytes)
+        st.audio(uploaded_file, format='audio/wav')
+        st.write("출력:")
+        st.write(composed_text)
+
+with tab4:
+    # buy me a coffee
+    buy_me_a_coffee.button(username="bul4jo", floating=True, width=220, text='커피 한 잔')
+    st.image(f'{working_dir}\cbmc_qr.png', caption='거! 커피한잔은 괜찮잖아~~', width=180)
+
+# Further commands are for execution context only
 # conda activate final
 # streamlit run next.py
 # tasklist | findstr streamlit
-
-end_time = time.monotonic()
-print('실행 로딩 경과 시간 : {}'.format(end_time-start_time))
