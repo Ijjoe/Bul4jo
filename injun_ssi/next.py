@@ -223,10 +223,24 @@ def join_jamos(s, ignore_err=True):
         new_string += flush()
     return new_string
 
+####IMAGE
 
-####PIPE LINE####
 
-pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
+
+tab1,tab2,tab3 = st.tabs(['Main','test','Q&A'])
+
+####TAB1####
+with tab1 :
+
+    logo_url = "https://github.com/Ijjoe/Bul4jo/blob/main/injun_ssi/busa_new_fin_tras.png?raw=true"
+
+    st.image(logo_url, width=300) 
+    
+####TAB2####
+
+with tab2 :
+
+    pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
 
 ####TEXT COMBINE####
 
@@ -236,101 +250,110 @@ pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
 #### transcribe #####
 
 #Whisper
-def transcribe_whisper(audio_data):
-        audio_buffer = BytesIO(audio_data)
-        temp_filename = "temp_audio.wav"
-        data, samplerate = sf.read(audio_buffer)
-        sf.write(temp_filename, data, samplerate)
+    def transcribe_whisper(audio_data):
+            audio_buffer = BytesIO(audio_data)
+            temp_filename = "temp_audio.wav"
+            data, samplerate = sf.read(audio_buffer)
+            sf.write(temp_filename, data, samplerate)
     
-        segments, info = model.transcribe(temp_filename, beam_size=5)
-        transcription = ""
+            segments, info = model.transcribe(temp_filename, beam_size=5)
+            transcription = ""
     
-        for segment in segments:
-            transcription += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+            for segment in segments:
+                transcription += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
 
-        language = info.language if info.language_probability > 0.5 else "Uncertain"
-        return transcription, language
-#Nemo
-def transcribe_nemo(audio_data):
-        audio_buffer = BytesIO(audio_data)
-        data, samplerate = sf.read(audio_buffer)
+            language = info.language if info.language_probability > 0.5 else "Uncertain"
+            return transcription, language
 
-        if len(data.shape) > 1 and data.shape[1] == 2:
-            data = data.mean(axis=1)
-
-        temp_filename = "temp.wav"
-        sf.write(temp_filename, data, samplerate)
-        text = asr_model.transcribe([temp_filename])[0]
-        return text
-        
-#Wav2Vec
-def transcribe(audio_data):
-        result = pipe(audio_data)
-        text = result["text"]
-        composed_text = join_jamos(text)
-        return composed_text
 #Custom Whisper
 
-feature_extractor = WhisperFeatureExtractor.from_pretrained("Dearlie/whisper-noise4")
-tokenizer = WhisperTokenizer.from_pretrained("Dearlie/whisper-noise4", language="korean", task="transcribe")
-processor = WhisperProcessor.from_pretrained("Dearlie/whisper-noise4", language="korean", task="transcribe")
-whisper_pipe = pipeline(model="Dearlie/whisper-noise4") 
+    feature_extractor = WhisperFeatureExtractor.from_pretrained("Dearlie/whisper-noise4")
+    tokenizer = WhisperTokenizer.from_pretrained("Dearlie/whisper-noise4", language="korean", task="transcribe")
+    processor = WhisperProcessor.from_pretrained("Dearlie/whisper-noise4", language="korean", task="transcribe")
+    custom_whisper_pipe = pipeline(model="Dearlie/whisper-noise4")
 
-def transcribe_whisper_custom(audio_data):
-    audio_buffer = BytesIO(audio_data)
-    data, samplerate = sf.read(audio_buffer, dtype='float32')
-    result = whisper_pipe(audio_buffer)
-    text = result["text"]
-    return text
+    def transcribe_whisper_custom(audio_data):
+#    audio_buffer = BytesIO(audio_data)
+        result = custom_whisper_pipe(audio_data)
+        text = result["text"]
+        return text
+
+
+#Nemo
+    def transcribe_nemo(audio_data):
+            audio_buffer = BytesIO(audio_data)
+            data, samplerate = sf.read(audio_buffer)
+    
+            if len(data.shape) > 1 and data.shape[1] == 2:
+                data = data.mean(axis=1)
+
+            temp_filename = "temp.wav"
+            sf.write(temp_filename, data, samplerate)
+            text = asr_model.transcribe([temp_filename])[0]
+            return text
+        
+#Wav2Vec
+    def transcribe(audio_data):
+            result = pipe(audio_data)
+            text = result["text"]
+            composed_text = join_jamos(text)
+            return composed_text
+
+
 
 ####STREAMLIT INTERFACE####
 
 
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Streamlit Interface
-st.title("불사조 음성 인식 STT 프로젝트 모델 비교")
-st.subheader("모델을 선택 해주세요:")
+    st.title("불사조 음성 인식 STT 프로젝트 모델 비교")
+    st.subheader("모델을 선택 해주세요:")
 
-model_options = ['Fast-Whisper 모델 테스트', 'Nvidia-Nemo 모델 테스트', 'Wav2Vec-Kor-LJ 모델 테스트', 'Whisper-Noise-D 모델 테스트']
-model_selection = st.radio("Choose a model to test:", model_options)
+    model_options = ['Fast-Whisper 모델 테스트', 'Nvidia-Nemo 모델 테스트', 'Wav2Vec-Kor-LJ 모델 테스트', 'Whisper-Noise-D 모델 테스트']
+    model_selection = st.radio("Choose a model to test:", model_options)
 
-if 'model_selected' in st.session_state:
-    if st.session_state['model_selected'] != model_selection:
+    if 'model_selected' in st.session_state:
+        if st.session_state['model_selected'] != model_selection:
+            st.session_state['model_selected'] = model_selection
+            st.session_state.pop('wav_audio_data', None) 
+    else:
         st.session_state['model_selected'] = model_selection
-        st.session_state.pop('wav_audio_data', None) 
-else:
-    st.session_state['model_selected'] = model_selection
 
-if 'model_selected' in st.session_state and 'wav_audio_data' not in st.session_state:
-    st.write("Please record your voice.")
-    wav_audio_data = st_audiorec()
-    if wav_audio_data:
-        st.session_state['wav_audio_data'] = wav_audio_data
+    if 'model_selected' in st.session_state and 'wav_audio_data' not in st.session_state:
+        st.write("Please record your voice.")
+        wav_audio_data = st_audiorec()
+        if wav_audio_data:
+            st.session_state['wav_audio_data'] = wav_audio_data
 
-if 'wav_audio_data' in st.session_state and st.session_state['wav_audio_data'] is not None:
-    if st.button("Process Audio"):
-        if model_selection == model_options[0]:
-            model = WhisperModel("medium", device="cuda", compute_type="float16")
-            recognized_text, language = transcribe_whisper(st.session_state['wav_audio_data'])
-            st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-            st.write("Detected language:", language)
-            st.write("Output:")
-            st.write(recognized_text)
-        elif model_selection == model_options[1]:
-            asr_model = nemo_asr.models.ASRModel.from_pretrained("eesungkim/stt_kr_conformer_transducer_large")
-            recognized_text = transcribe_nemo(st.session_state['wav_audio_data'])
-            st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-            st.write("Output:")
-            st.write(recognized_text)
-        elif model_selection == model_options[2]:
-            pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
-            composed_text = transcribe(st.session_state['wav_audio_data'])
-            st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-            st.write("Output:")
-            st.write(composed_text)
-        elif model_selection == model_options[3]:
-            recognized_text = transcribe_whisper_custom(st.session_state['wav_audio_data'])
-            st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-            st.write("Output:")
-            st.write(recognized_text)
+    if 'wav_audio_data' in st.session_state and st.session_state['wav_audio_data'] is not None:
+        if st.button("Process Audio"):
+            if model_selection == model_options[0]:
+                model = WhisperModel("medium", device="cuda", compute_type="float16")
+                recognized_text, language = transcribe_whisper(st.session_state['wav_audio_data'])
+                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
+                st.write("Detected language:", language)
+                st.write("Output:")
+                st.write(recognized_text)
+            elif model_selection == model_options[1]:
+                asr_model = nemo_asr.models.ASRModel.from_pretrained("eesungkim/stt_kr_conformer_transducer_large")
+                recognized_text = transcribe_nemo(st.session_state['wav_audio_data'])
+                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
+                st.write("Output:")
+                st.write(recognized_text)
+            elif model_selection == model_options[2]:
+                pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
+                composed_text = transcribe(st.session_state['wav_audio_data'])
+                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
+                st.write("Output:")
+                st.write(composed_text)
+            elif model_selection == model_options[3]:
+                recognized_text = transcribe_whisper_custom(st.session_state['wav_audio_data'])
+                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
+                st.write("Output:")
+                st.write(recognized_text)
+####TAB3####      
+with tab3 :
+    buy_me_a_coffee.button(username="bul4jo", floating=True, width=220 ,text='커피 한 잔' )
+    st.image(f'C:\MAIN\cbmc_qr.png', caption='거! 커피한잔은 괜찮잖아~~',width=180)
+
