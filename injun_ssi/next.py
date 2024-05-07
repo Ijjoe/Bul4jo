@@ -18,8 +18,6 @@ import nemo.collections.asr as nemo_asr
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 ####JAMO####
-
-
 start_time = time.monotonic()
 
 INITIAL = 0x001
@@ -56,23 +54,23 @@ CHAR_INDICES = {k: {c: i for i, c in enumerate(v)}
 
 
 def is_hangul_syllable(c):
-    return 0xac00 <= ord(c) <= 0xd7a3  # Hangul Syllables
+    return 0xac00 <= ord(c) <= 0xd7a3 
 
 
 def is_hangul_jamo(c):
-    return 0x1100 <= ord(c) <= 0x11ff  # Hangul Jamo
+    return 0x1100 <= ord(c) <= 0x11ff  
 
 
 def is_hangul_compat_jamo(c):
-    return 0x3130 <= ord(c) <= 0x318f  # Hangul Compatibility Jamo
+    return 0x3130 <= ord(c) <= 0x318f  
 
 
 def is_hangul_jamo_exta(c):
-    return 0xa960 <= ord(c) <= 0xa97f  # Hangul Jamo Extended-A
+    return 0xa960 <= ord(c) <= 0xa97f  
 
 
 def is_hangul_jamo_extb(c):
-    return 0xd7b0 <= ord(c) <= 0xd7ff  # Hangul Jamo Extended-B
+    return 0xd7b0 <= ord(c) <= 0xd7ff  
 
 
 def is_hangul(c):
@@ -233,8 +231,10 @@ tab1,tab2,tab3 = st.tabs(['Main','test','Q&A'])
 with tab1 :
 
     logo_url = "https://github.com/Ijjoe/Bul4jo/blob/main/injun_ssi/busa_new_fin_tras.png?raw=true"
+    
+    st.image(logo_url, width=300)
 
-    st.image(logo_url, width=300) 
+    st.write("*불사조 연구 사이트에 오신걸 환영 합니다.*" )    
     
 ####TAB2####
 
@@ -249,7 +249,7 @@ with tab2 :
 
 #### transcribe #####
 
-#Whisper
+#Fast Whisper
     def transcribe_whisper(audio_data):
             audio_buffer = BytesIO(audio_data)
             temp_filename = "temp_audio.wav"
@@ -265,7 +265,7 @@ with tab2 :
             language = info.language if info.language_probability > 0.5 else "Uncertain"
             return transcription, language
 
-#Custom Whisper
+#현규님 커스텀 Whisper
 
     feature_extractor = WhisperFeatureExtractor.from_pretrained("Dearlie/whisper-noise4")
     tokenizer = WhisperTokenizer.from_pretrained("Dearlie/whisper-noise4", language="korean", task="transcribe")
@@ -279,7 +279,7 @@ with tab2 :
         return text
 
 
-#Nemo
+#Nvidia 네모
     def transcribe_nemo(audio_data):
             audio_buffer = BytesIO(audio_data)
             data, samplerate = sf.read(audio_buffer)
@@ -292,7 +292,7 @@ with tab2 :
             text = asr_model.transcribe([temp_filename])[0]
             return text
         
-#Wav2Vec
+#Wav2Vec 커스텀한거
     def transcribe(audio_data):
             result = pipe(audio_data)
             text = result["text"]
@@ -306,52 +306,48 @@ with tab2 :
 
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# Streamlit Interface
-    st.title("불사조 음성 인식 STT 프로젝트 모델 비교")
+# Streamlit 인터페이스
+    import streamlit as st
+
+
+    st.title("불사조 음성 인식 STT 프로젝트 모델 시뮬레이션")
     st.subheader("모델을 선택 해주세요:")
 
-    model_options = ['Fast-Whisper 모델 테스트', 'Nvidia-Nemo 모델 테스트', 'Wav2Vec-Kor-LJ 모델 테스트', 'Whisper-Noise-D 모델 테스트']
-    model_selection = st.radio("Choose a model to test:", model_options)
+    model_options = ['Fast-Whisper 모델 테스트', 'Nvidia-Nemo 모델 테스트', 'Wav2Vec-Kor-LJ 모델 테스트']
+    broken_models = ['Whisper-Noise-D 모델 테스트']
 
-    if 'model_selected' in st.session_state:
-        if st.session_state['model_selected'] != model_selection:
-            st.session_state['model_selected'] = model_selection
-            st.session_state.pop('wav_audio_data', None) 
-    else:
+    model_selection = st.radio("Live 가능 모델:", model_options)
+    broken_selection = st.radio("현재 작동 이상 모델", broken_models)
+
+    model_selection = model_selection if model_selection else broken_selection
+
+    if 'model_selected' not in st.session_state or st.session_state['model_selected'] != model_selection:
         st.session_state['model_selected'] = model_selection
+        st.session_state.pop('wav_audio_data', None)
 
     if 'model_selected' in st.session_state and 'wav_audio_data' not in st.session_state:
-        st.write("Please record your voice.")
+        st.write("목소리를 녹음해주세요.")
         wav_audio_data = st_audiorec()
         if wav_audio_data:
             st.session_state['wav_audio_data'] = wav_audio_data
 
     if 'wav_audio_data' in st.session_state and st.session_state['wav_audio_data'] is not None:
-        if st.button("Process Audio"):
+        if st.button("모델 적용"):
             if model_selection == model_options[0]:
                 model = WhisperModel("medium", device="cuda", compute_type="float16")
                 recognized_text, language = transcribe_whisper(st.session_state['wav_audio_data'])
-                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-                st.write("Detected language:", language)
-                st.write("Output:")
-                st.write(recognized_text)
             elif model_selection == model_options[1]:
                 asr_model = nemo_asr.models.ASRModel.from_pretrained("eesungkim/stt_kr_conformer_transducer_large")
                 recognized_text = transcribe_nemo(st.session_state['wav_audio_data'])
-                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-                st.write("Output:")
-                st.write(recognized_text)
             elif model_selection == model_options[2]:
                 pipe = pipeline(model="Ljrabbit/wav2vec2-large-xls-r-300m-korean-test0")
-                composed_text = transcribe(st.session_state['wav_audio_data'])
-                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-                st.write("Output:")
-                st.write(composed_text)
-            elif model_selection == model_options[3]:
+                recognized_text = transcribe(st.session_state['wav_audio_data'])
+            elif model_selection == broken_models[0]:
                 recognized_text = transcribe_whisper_custom(st.session_state['wav_audio_data'])
-                st.audio(st.session_state['wav_audio_data'], format='audio/wav')
-                st.write("Output:")
-                st.write(recognized_text)
+            st.audio(st.session_state['wav_audio_data'], format='audio/wav')
+            st.write("Output:")
+            st.write(recognized_text)
+
 ####TAB3####      
 with tab3 :
     buy_me_a_coffee.button(username="bul4jo", floating=True, width=220 ,text='커피 한 잔' )
